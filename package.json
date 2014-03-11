@@ -1,0 +1,35 @@
+{
+  "name": "seneca-hapi",
+  "version": "0.1.0",
+  "description": "plugin seneca services into hapi.js",
+  "main": "hapi.js",
+  "dependencies": {
+  },
+  "peerDependencies": {
+    "hapi": "*",
+    "seneca": "*"
+  },
+  "devDependencies": {
+    "mocha": "1.17.x",
+    "seneca": "^0.5.15",
+    "hapi": "^2.6.0"
+  },
+  "scripts": {
+    "test": "mocha test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nherment/seneca-hapi.git"
+  },
+  "keywords": [
+    "seneca",
+    "plugin",
+    "hapi"
+  ],
+  "author": "Nicolas Herment <nherment@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nherment/seneca-hapi/issues"
+  },
+  "homepage": "https://github.com/nherment/seneca-hapi"
+}

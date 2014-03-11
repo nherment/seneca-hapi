@@ -1,4 +1,7 @@
 
+[![Build Status](https://api.travis-ci.org/nherment/seneca-hapi.png?branch=master)](https://travis-ci.org/nherment/seneca-hapi)
+
+
 ```
 
 var Hapi = require('hapi')

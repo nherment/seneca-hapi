@@ -14,8 +14,15 @@ var si = seneca()
 si.use('../hapi.js')
 
 si.add( {role:'hello'}, function(args, callback) {
-  console.log('hello', args.name)
   callback(null, {result: 'hello ' + args.name })
+})
+
+si.add( {role:'do', cmd: 'public'}, function(args, callback) {
+  callback(null, 'public')
+})
+
+si.add( {role:'do', cmd: 'private'}, function(args, callback) {
+  throw new Error('this command should not be accessible form HTTP')
 })
 
 
@@ -51,7 +58,7 @@ describe('hapi', function () {
       pack: server.pack,
       connectors: [{
           role: 'hello',
-          path: '/test1/{name}'
+          path: '/hello/{name}'
         }
       ]
     }, function(err) {
@@ -61,7 +68,7 @@ describe('hapi', function () {
 
       server.inject({
         method: 'post',
-        url: '/test1/' + timestamp
+        url: '/hello/' + timestamp
       }, function(res) {
         assert.equal(res.statusCode, 200, res.payload)
         assert.ok(res.headers['content-type'], 'missing content-type headers')
@@ -69,6 +76,84 @@ describe('hapi', function () {
         assert.ok(res.payload, 'missing response body')
         var payload = JSON.parse(res.payload)
         assert.ok(payload.result, 'hello '+ timestamp)
+        done()
+      })
+    })
+  })
+
+  it('url param takes precedence over post param', function (done) {
+
+    var timestamp = Date.now()
+
+    server.inject({
+      method: 'post',
+      url: '/hello/' + timestamp,
+      payload: JSON.stringify({name: 'foobar'})
+    }, function(res) {
+      assert.equal(res.statusCode, 200, res.payload)
+      assert.ok(res.headers['content-type'], 'missing content-type headers')
+      assert.ok(res.headers['content-type'].indexOf('application/json') > -1, 'missing application/json content-type headers')
+      assert.ok(res.payload, 'missing response body')
+      var payload = JSON.parse(res.payload)
+      assert.ok(payload.result, 'hello '+ timestamp)
+      done()
+    })
+  })
+
+  it('url param takes precedence over get param', function (done) {
+    hapiPin.attach({
+      name: 'test3',
+      version: '0.0.1',
+      pack: server.pack,
+      connectors: [{
+          role: 'hello',
+          path: '/hello/{name}',
+          method: 'get'
+        }
+      ]
+    }, function(err) {
+      assert.ok(!err)
+
+      var timestamp = Date.now()
+
+      server.inject({
+        method: 'get',
+        url: '/hello/' + timestamp+'?name=foobar'
+      }, function(res) {
+        assert.equal(res.statusCode, 200, res.payload)
+        assert.ok(res.headers['content-type'], 'missing content-type headers')
+        assert.ok(res.headers['content-type'].indexOf('application/json') > -1, 'missing application/json content-type headers')
+        assert.ok(res.payload, 'missing response body')
+        var payload = JSON.parse(res.payload)
+        assert.ok(payload.result, 'hello '+ timestamp)
+        done()
+      })
+    })
+  })
+
+  it('it is not possible to override the cmd', function (done) {
+    hapiPin.attach({
+      name: 'test4',
+      version: '0.0.1',
+      pack: server.pack,
+      connectors: [{
+          role: 'do',
+          cmd: 'public',
+          path: '/do/{cmd}'
+        }
+      ]
+    }, function(err) {
+      assert.ok(!err)
+
+      var timestamp = Date.now()
+
+      server.inject({
+        method: 'post',
+        url: '/do/private?cmd=private',
+        payload: JSON.stringify({cmd: 'private'})
+      }, function(res) {
+        assert.equal(res.statusCode, 200, res.payload)
+        assert.equal(res.payload, 'public')
         done()
       })
     })

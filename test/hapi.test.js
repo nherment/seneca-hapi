@@ -42,8 +42,8 @@ describe('hapi', function () {
         method: 'post',
         url: '/ping'
       }, function(res) {
-        assert.equal(res.statusCode, 200)
-        assert.equal(res.payload, 'pong')
+        assert.equal(res.statusCode, 200, 'expected http 200 status code')
+        assert.equal(res.payload, 'pong', 'microservice did not answered to ping')
         done()
       })
     })
@@ -68,12 +68,163 @@ describe('hapi', function () {
         url: '/hello',
         payload: JSON.stringify({name: 'world ' + now})
       }, function(res) {
-        assert.equal(res.statusCode, 200)
-        assert.ok(res.headers['content-type'])
-        assert.ok(res.headers['content-type'].indexOf('application/json') > -1)
-        assert.ok(res.payload)
+        assert.equal(res.statusCode, 200, 'expected http 200 status code')
+        assert.ok(res.headers['content-type'], 'missing content-type headers')
+        assert.ok(res.headers['content-type'].indexOf('application/json') > -1, 'missing application/json content-type headers')
+        assert.ok(res.payload, 'missing response body')
         var payload = JSON.parse(res.payload)
-        assert.ok(payload.result)
+        assert.ok(payload.result, 'missing result')
+        assert.equal(payload.result, 'hello world ' + now)
+        done()
+      })
+    })
+  })
+
+  it('custom url', function (done) {
+    hapiPin.attach({
+      name: 'test3',
+      version: '0.0.1',
+      pack: server.pack,
+      connectors: [{
+          role: 'ping',
+          path: '/pingpong'
+        }
+      ]
+    }, function(err) {
+      assert.ok(!err)
+
+      var now = Date.now()
+
+      server.inject({
+        method: 'post',
+        url: '/pingpong'
+      }, function(res) {
+        assert.equal(res.statusCode, 200, 'expected http 200 status code')
+        assert.equal(res.payload, 'pong', 'microservice did not answered to ping')
+        done()
+      })
+    })
+  })
+
+  it('get http method', function (done) {
+    hapiPin.attach({
+      name: 'test4',
+      version: '0.0.1',
+      pack: server.pack,
+      connectors: [{
+          role: 'ping',
+          path: '/pingpong2',
+          method: 'get'
+        }
+      ]
+    }, function(err) {
+      assert.ok(!err)
+
+      var now = Date.now()
+
+      server.inject({
+        method: 'get',
+        url: '/pingpong2'
+      }, function(res) {
+        assert.equal(res.statusCode, 200, 'expected http 200 status code')
+        assert.equal(res.payload, 'pong', 'microservice did not answered to ping')
+        done()
+      })
+    })
+  })
+
+  it('put http method', function (done) {
+    hapiPin.attach({
+      name: 'test5',
+      version: '0.0.1',
+      pack: server.pack,
+      connectors: [{
+          role: 'hello',
+          path: '/helloPut',
+          method: 'put'
+        }
+      ]
+    }, function(err) {
+      assert.ok(!err)
+
+      var now = Date.now()
+
+      server.inject({
+        method: 'put',
+        url: '/helloPut',
+        payload: JSON.stringify({name: 'world ' + now})
+      }, function(res) {
+        assert.equal(res.statusCode, 200, 'expected http 200 status code')
+        assert.ok(res.headers['content-type'], 'missing content-type headers')
+        assert.ok(res.headers['content-type'].indexOf('application/json') > -1, 'missing application/json content-type headers')
+        assert.ok(res.payload, 'missing response body')
+        var payload = JSON.parse(res.payload)
+        assert.ok(payload.result, 'missing result')
+        assert.equal(payload.result, 'hello world ' + now)
+        done()
+      })
+    })
+  })
+
+  it('delete http method', function (done) {
+    hapiPin.attach({
+      name: 'test6',
+      version: '0.0.1',
+      pack: server.pack,
+      connectors: [{
+          role: 'hello',
+          path: '/helloDelete',
+          method: 'delete'
+        }
+      ]
+    }, function(err) {
+      assert.ok(!err)
+
+      var now = Date.now()
+
+      server.inject({
+        method: 'delete',
+        url: '/helloDelete',
+        payload: JSON.stringify({name: 'world ' + now})
+      }, function(res) {
+        assert.equal(res.statusCode, 200, 'expected http 200 status code')
+        assert.ok(res.headers['content-type'], 'missing content-type headers')
+        assert.ok(res.headers['content-type'].indexOf('application/json') > -1, 'missing application/json content-type headers')
+        assert.ok(res.payload, 'missing response body')
+        var payload = JSON.parse(res.payload)
+        assert.ok(payload.result, 'missing result')
+        assert.equal(payload.result, 'hello world ' + now)
+        done()
+      })
+    })
+  })
+
+  it('get http method pass arguments from query', function (done) {
+    hapiPin.attach({
+      name: 'test7',
+      version: '0.0.1',
+      pack: server.pack,
+      connectors: [{
+          role: 'hello',
+          path: '/helloGet',
+          method: 'get'
+        }
+      ]
+    }, function(err) {
+      assert.ok(!err)
+
+      var now = Date.now()
+
+      server.inject({
+        method: 'get',
+        url: '/helloGet?name=world ' + now
+      }, function(res) {
+        assert.equal(res.statusCode, 200, 'expected http 200 status code')
+        assert.ok(res.headers['content-type'], 'missing content-type headers')
+        assert.ok(res.headers['content-type'].indexOf('application/json') > -1, 'missing application/json content-type headers')
+        assert.ok(res.payload, 'missing response body')
+        var payload = JSON.parse(res.payload)
+        assert.ok(payload.result, 'missing result')
         assert.equal(payload.result, 'hello world ' + now)
         done()
       })

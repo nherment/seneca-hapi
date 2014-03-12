@@ -55,9 +55,10 @@ The path can contain any parameters except ```role```.
 For example:
 ```
 role: 'salestax',
-path: '/salestax/{cmd}'
+path: '/salestax/{cmd}/{arg1}/{arg2}'
 ```
-will expose any command from the 'salestax' microservice.
+will expose any command from the 'salestax' microservice, and tie arg1 and arg2 to the url.
+Paths follows hapi's url format.
 
 ```role``` (required) the seneca plugin name. The role is required so that you cannot expose all your commands by mistake
 

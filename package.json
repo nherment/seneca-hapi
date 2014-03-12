@@ -11,8 +11,9 @@
   },
   "devDependencies": {
     "mocha": "1.17.x",
-    "seneca": "^0.5.15",
-    "hapi": "^2.6.0"
+    "seneca": "*",
+    "hapi": "*",
+    "async": "0.2.10"
   },
   "scripts": {
     "test": "mocha test/*.test.js"

@@ -4,9 +4,9 @@
   "description": "plugin seneca services into hapi.js",
   "main": "hapi.js",
   "dependencies": {
+    "hapi": "*"
   },
   "peerDependencies": {
-    "hapi": "*",
     "seneca": "*"
   },
   "devDependencies": {

@@ -3,7 +3,6 @@
 
 
 ```
-
 var Hapi = require('hapi')
 var hapiServer = Hapi.createServer('0.0.0.0', 3000)
 
@@ -37,39 +36,65 @@ seneca.ready(function() {
 
 ### parameters
 
-#### name
-the name of the hapi plugin exported
+```name``` (required) the name of the hapi plugin exported
 
-#### version
-the version of the hapi plugin exported
+```version``` (required) the version of the hapi plugin exported
 
-#### pack
-The server pack to which the plugin should be attached
+```pack``` (required) The server pack to which the plugin should be attached
 
-#### connectors
 
-An array of seneca plugins to expose. Each connector is an object with the following attributes
+```connectors``` (required) An array of seneca plugins to expose. Each connector is an object with the following attributes
 
-##### method
+Connectors have the following attributes:
 
-the HTTP method
+```method``` (optional) the HTTP method. defaults to ```post```
 
-- optional. defaults to 'post'
+```path``` (optional) the HTTP path to the endpoint. defaults to ```/<role>```
 
-#### path
-the HTTP path to the endpoint
+The path can contain any parameters except ```role```.
+For example:
+```
+role: 'salestax',
+path: '/salestax/{cmd}'
+```
+will expose any command from the 'salestax' microservice.
 
-- optional. defaults to /<role>
+```role``` (required) the seneca plugin name. The role is required so that you cannot expose all your commands by mistake
 
-#### role
+```cmd``` (optional) the specific command to expose. By default, all commands are exposed and can be selected with
+either the ```cmd``` GET params for GET request or the ```cmd``` attribute in the body payload (json) for other HTTP
+methods.
 
-the seneca plugin name
 
-- required
+#### Parameters ordering.
 
-#### cmd
+It is possible to pass parameters from HTTP to the microservices in multiple ways:
 
-the specific command to expose
+- GET query parameters ```/foo?arg1=abc&arg2=xyz```
+- POST body parameters ```{"arg1": "abc", "arg2": "xyz"}```
+- routing parameters ```/foo/{arg1}/{arg2} ==> /foo/abc/xyz```
 
-- optional. By default, all commands are exposed and can be selected with either the ```cmd``` GET params for GET
-request or the ```cmd``` attribute in the body payload (json) for other HTTP methods.
+GET parameters are only read when the ```get``` method is specified in the connector.
+POST parameters are overridden by routing parameters.
+
+That means that if given the following query:
+```
+{
+  method: 'POST',
+  url: '/foo/valueURL1/valueURL2',
+  payload: '{"arg1": "valueBody1", "arg2": "valueBody2", "arg3": "valueBody3"}'
+}
+```
+
+The microservice will receive:
+```
+{
+  arg1: 'valueURL1',
+  arg2: 'valueURL2',
+  arg3: 'valueBody3'
+
+}
+```
+
+If the ```role``` or the ```cmd``` is defined in the connector, the values will take precedence over any parameter
+passed to the HTTP endpoint.

@@ -24,7 +24,7 @@ seneca.ready(function() {
         'role': 'salestax',
         'cmd': 'salestax'
       }
-    ], function(err) {
+    ]}, function(err) {
 
     })
 

@@ -13,7 +13,8 @@
     "mocha": "1.17.x",
     "seneca": "*",
     "hapi": "*",
-    "async": "0.2.10"
+    "async": "0.2.10",
+    "seneca-salestax": "*"
   },
   "scripts": {
     "test": "mocha test/*.test.js"
